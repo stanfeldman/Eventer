@@ -5,7 +5,7 @@ This is type-safe publish/subscribe implementation, where you use custom enums a
 
 ### Events
 
-You inherite Event protocol in your events enum.
+Inherit Event protocol in your events enum.
 
 ```swift
 enum User: Event {
@@ -16,7 +16,7 @@ enum User: Event {
 
 ### Subscription
 
-You can use clojures as callbacks.
+You can subscribe to clojure.
 
 ```swift
 Eventer.subscribe(Events.User.Followed) { (info) in
@@ -24,7 +24,7 @@ Eventer.subscribe(Events.User.Followed) { (info) in
 }
 ```
 
-And functions as well.
+And you can subscribe to function or method.
 
 ```swift
 Eventer.subscribe(Events.User.Unfollowed, action: self.onNeedToReload)
@@ -44,7 +44,7 @@ You can publish events defined in custom enums.
 Eventer.publish(Events.User.Followed)
 ```
 
-You can publish events with additional info.
+And you can publish events with additional info.
 
 ```swift
 Eventer.publish(Events.Route.Added, info: "Super user")
