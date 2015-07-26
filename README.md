@@ -16,10 +16,10 @@ enum User: Event {
 
 ### Subscription
 
-You can subscribe to clojure.
+You can subscribe to closure.
 
 ```swift
-Eventer.subscribe(Events.User.Followed) { (info) in
+Eventer.subscribe(Events.User.Followed) {
   
 }
 ```
@@ -28,6 +28,14 @@ And you can subscribe to function or method.
 
 ```swift
 Eventer.subscribe(Events.User.Unfollowed, action: self.onNeedToReload)
+```
+
+Closure or function can be with or without info argument.
+
+```swift
+Eventer.subscribe(Events.User.Followed) { (info) in
+  
+}
 ```
 
 You can use subscribe to several events.

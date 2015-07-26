@@ -10,25 +10,62 @@
 protocol Event: Hashable {}
 
 
-class Eventer<T: Event> {
-    typealias Action = (info: AnyObject?) -> Void
+enum Action {
+    typealias SimpleAction = () -> Void
+    typealias InfoAction = (info: AnyObject?) -> Void
     
-    class func publish(event: T, info: AnyObject?=nil) {
+    case Simple(SimpleAction)
+    case Info(InfoAction)
+    
+    func execute() {
+        execute(nil)
+    }
+    
+    func execute(info: AnyObject?) {
+        switch self {
+            case .Simple(let action):
+                action()
+            case .Info(let action):
+                action(info: info)
+            default:
+                break
+        }
+    }
+}
+
+
+class Eventer<T: Event> {
+    class func publish(event: T) {
+        publish(event, info: nil)
+    }
+    
+    class func publish(event: T, info: AnyObject?) {
         for action in Eventer.sharedInstance.actions {
             if action.0 == event {
-                action.1(info:info)
+                action.1.execute(info)
             }
         }
     }
     
-    class func subscribe(event: T, action: Action) {
-        Eventer.sharedInstance.actions.append((event, action))
+    class func subscribe(event: T, action: Action.SimpleAction) {
+        Eventer.sharedInstance.actions.append((event, Action.Simple(action)))
     }
     
-    class func subscribe(events: [T], action: Action) {
+    class func subscribe(events: [T], action: Action.SimpleAction) {
         let eventer = Eventer.sharedInstance
         for event in events {
-            eventer.actions.append((event, action))
+            eventer.actions.append((event, Action.Simple(action)))
+        }
+    }
+    
+    class func subscribe(event: T, action: Action.InfoAction) {
+        Eventer.sharedInstance.actions.append((event, Action.Info(action)))
+    }
+    
+    class func subscribe(events: [T], action: Action.InfoAction) {
+        let eventer = Eventer.sharedInstance
+        for event in events {
+            eventer.actions.append((event, Action.Info(action)))
         }
     }
     
