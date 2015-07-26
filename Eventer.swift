@@ -33,6 +33,17 @@ class Eventer<T: Event> {
     }
     
     /**
+    Publish event with info: AnyObject?
+    
+    :param: event Your event
+    
+    :param: info Any object you want to pass to actions
+    */
+    class func publish(event: T, info: AnyObject?) {
+        publish(event, info: info, to:.Immediate)
+    }
+    
+    /**
     Publish event with info: AnyObject? and execution type
     
     :param: event Your event
@@ -41,7 +52,7 @@ class Eventer<T: Event> {
     
     :param: to Execution type: Immediate, Background or Main
     */
-    class func publish(event: T, info: AnyObject?, to:Action.Execution = Action.Execution.Immediate) {
+    class func publish(event: T, info: AnyObject?, to:Action.Execution) {
         for action in Eventer.sharedInstance.actions {
             if action.0 == event {
                 action.1.execute(info, execution:to)
