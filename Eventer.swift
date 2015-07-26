@@ -6,7 +6,9 @@
 //  Copyright (c) 2015 Limehat. All rights reserved.
 //
 
-// inherit your Events enum from this protocol
+/**
+Inherit your Events enum from this protocol.
+*/
 protocol Event: Hashable {}
 
 
@@ -34,11 +36,27 @@ enum Action {
 }
 
 
+/**
+Type-safe publish/subscribe implementation, where you use custom enums as events.
+Use static functions to publish/subscribe on events.
+*/
 class Eventer<T: Event> {
+    /**
+    Publish event
+    
+    :param: event Your event
+    */
     class func publish(event: T) {
         publish(event, info: nil)
     }
     
+    /**
+    Publish event with info: AnyObject?
+    
+    :param: event Your event
+    
+    :param: info Any object you want to pass to actions
+    */
     class func publish(event: T, info: AnyObject?) {
         for action in Eventer.sharedInstance.actions {
             if action.0 == event {
@@ -47,10 +65,24 @@ class Eventer<T: Event> {
         }
     }
     
+    /**
+    Subscribe action to event
+    
+    :param: event Your event
+    
+    :param: action Function or closure without argument
+    */
     class func subscribe(event: T, action: Action.SimpleAction) {
         Eventer.sharedInstance.actions.append((event, Action.Simple(action)))
     }
     
+    /**
+    Subscribe action to array of events
+    
+    :param: events Array of events
+    
+    :param: action Function or closure without argument
+    */
     class func subscribe(events: [T], action: Action.SimpleAction) {
         let eventer = Eventer.sharedInstance
         for event in events {
@@ -58,10 +90,24 @@ class Eventer<T: Event> {
         }
     }
     
+    /**
+    Subscribe info action to event
+    
+    :param: event Your event
+    
+    :param: action Function or closure with info:AnyObject? argument
+    */
     class func subscribe(event: T, action: Action.InfoAction) {
         Eventer.sharedInstance.actions.append((event, Action.Info(action)))
     }
     
+    /**
+    Subscribe info action to array of events
+        
+    :param: events Array of events
+    
+    :param: action Function or closure with info:AnyObject? argument
+    */
     class func subscribe(events: [T], action: Action.InfoAction) {
         let eventer = Eventer.sharedInstance
         for event in events {
@@ -69,6 +115,11 @@ class Eventer<T: Event> {
         }
     }
     
+    /**
+    Unsubscribe all actions from this event
+    
+    :param: event Your event
+    */
     class func unsubscribe(event: T) {
         let eventer = Eventer.sharedInstance
         var index = 0
@@ -82,8 +133,8 @@ class Eventer<T: Event> {
     
     static var sharedInstance:Eventer<T> {
         for eventerInstance in __eventerInstances {
-            if eventerInstance is Eventer<T> {
-                return eventerInstance as! Eventer<T>
+            if let instance = eventerInstance as? Eventer<T> {
+                return instance
             }
         }
         let eventer = Eventer<T>()
@@ -93,4 +144,8 @@ class Eventer<T: Event> {
     
     private var actions = [(T, Action)]()
 }
+
+/**
+Do not change it! Internal variable for holding Eventer instances.
+*/
 var __eventerInstances = [AnyObject]()
