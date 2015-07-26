@@ -1,14 +1,12 @@
-//
-//  Async.swift
-//  cloudplayer
-//
-//  Created by Стас on 23.09.14.
-//  Copyright (c) 2014 Limehat. All rights reserved.
-//
-
-import UIKit
+//  Created by Stanislav Feldman on 26/07/15.
+//  Copyright (c) 2015 Stanislav Feldman. All rights reserved.
 
 
+/**
+Grand Central Dispatch wrapper.
+You can run code in background or main thread.
+Also you can run your code after some time.
+*/
 class dispatch
 {
     class async
