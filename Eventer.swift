@@ -19,16 +19,44 @@ enum Action {
     case Simple(SimpleAction)
     case Info(InfoAction)
     
-    func execute() {
-        execute(nil)
+    enum Execution {
+        case Immediate
+        case Background
+        case Main
     }
     
-    func execute(info: AnyObject?) {
+    func execute(execution:Execution = .Immediate) {
+        execute(nil, execution: execution)
+    }
+    
+    func execute(info: AnyObject?, execution:Execution = .Immediate) {
         switch self {
             case .Simple(let action):
-                action()
+                switch execution {
+                    case .Background:
+                        dispatch.async.bg {
+                            action()
+                        }
+                    case .Main:
+                        dispatch.async.main {
+                            action()
+                        }
+                    default:
+                        action()
+                }
             case .Info(let action):
-                action(info: info)
+                switch execution {
+                    case .Background:
+                        dispatch.async.bg {
+                            action(info: info)
+                        }
+                    case .Main:
+                        dispatch.async.main {
+                            action(info: info)
+                        }
+                    default:
+                        action(info: info)
+                }
             default:
                 break
         }
@@ -47,20 +75,33 @@ class Eventer<T: Event> {
     :param: event Your event
     */
     class func publish(event: T) {
-        publish(event, info: nil)
+        publish(event, to:.Immediate)
     }
     
     /**
-    Publish event with info: AnyObject?
+    Publish event to execution type
+    
+    :param: event Your event
+    
+    :param: to Execution type: Immediate, Background or Main
+    */
+    class func publish(event: T, to:Action.Execution) {
+        publish(event, info: nil, to:to)
+    }
+    
+    /**
+    Publish event with info: AnyObject? and execution type
     
     :param: event Your event
     
     :param: info Any object you want to pass to actions
+    
+    :param: to Execution type: Immediate, Background or Main
     */
-    class func publish(event: T, info: AnyObject?) {
+    class func publish(event: T, info: AnyObject?, to:Action.Execution = Action.Execution.Immediate) {
         for action in Eventer.sharedInstance.actions {
             if action.0 == event {
-                action.1.execute(info)
+                action.1.execute(info, execution:to)
             }
         }
     }

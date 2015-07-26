@@ -57,3 +57,10 @@ And you can publish events with additional info.
 ```swift
 Eventer.publish(Events.Route.Added, info: "Super user")
 ```
+
+You can asynchronously publish events in background or main thread.
+
+```swift
+Eventer.publish(Events.User.Followed, to: .Background)
+Eventer.publish(Events.User.Followed, to: .Main)
+```
