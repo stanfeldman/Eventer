@@ -82,6 +82,8 @@ class Eventer<EventType: Event> {
     :param: events Array of events
     
     :param: action Function or closure without argument
+    
+    :returns: Subscription token
     */
     class func subscribe(events: [EventType], action: Action.SimpleAction) -> String {
         let token = NSUUID().UUIDString
@@ -98,6 +100,8 @@ class Eventer<EventType: Event> {
     :param: event Your event
     
     :param: action Function or closure with info:AnyObject? argument
+    
+    :returns: Subscription token
     */
     class func subscribe(event: EventType, action: Action.InfoAction) -> String {
         return subscribe([event], action: action)
@@ -109,6 +113,8 @@ class Eventer<EventType: Event> {
     :param: events Array of events
     
     :param: action Function or closure with info:AnyObject? argument
+    
+    :returns: Subscription token
     */
     class func subscribe(events: [EventType], action: Action.InfoAction) -> String {
         let token = NSUUID().UUIDString
@@ -173,87 +179,3 @@ Do not change it! Internal variable for holding Eventer instances.
 */
 var __eventerInstances = [AnyObject]()
 
-
-/**
-NSNotificationCenter wrapper.
-*/
-class Notificator {
-    /**
-    Subscribe notification action to NSNotification
-    
-    :param: event Your string event
-    
-    :param: action Function or closure with notification:NSNotification! argument
-    
-    :returns: Subscription token
-    */
-    class func subscribe(event: String, action: Action.NotificationAction) -> NSObjectProtocol {
-        return NSNotificationCenter.defaultCenter().addObserverForName(event, object: nil, queue: nil, usingBlock: action)
-    }
-    
-    /**
-    Subscribe notification action to NSNotification
-    
-    :param: token Subscription token
-    */
-    class func unsubscribe(token: NSObjectProtocol) {
-        NSNotificationCenter.defaultCenter().removeObserver(token)
-    }
-}
-
-
-/**
-Action holder. Holds action with or without info parameter.
-Executes action immediate by default or in background or main thread.
-*/
-enum Action {
-    typealias SimpleAction = () -> Void
-    typealias InfoAction = (info: AnyObject?) -> Void
-    typealias NotificationAction = (notification: NSNotification!) -> Void
-    
-    case Simple(SimpleAction)
-    case Info(InfoAction)
-    
-    enum Execution {
-        case Immediate
-        case Background
-        case Main
-    }
-    
-    func execute(execution:Execution = .Immediate) {
-        execute(nil, execution: execution)
-    }
-    
-    func execute(info: AnyObject?, execution:Execution = .Immediate) {
-        switch self {
-        case .Simple(let action):
-            switch execution {
-            case .Background:
-                dispatch.async.bg {
-                    action()
-                }
-            case .Main:
-                dispatch.async.main {
-                    action()
-                }
-            default:
-                action()
-            }
-        case .Info(let action):
-            switch execution {
-            case .Background:
-                dispatch.async.bg {
-                    action(info: info)
-                }
-            case .Main:
-                dispatch.async.main {
-                    action(info: info)
-                }
-            default:
-                action(info: info)
-            }
-        default:
-            break
-        }
-    }
-}
